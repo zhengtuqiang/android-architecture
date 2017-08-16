@@ -20,7 +20,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.example.android.architecture.blueprints.todoapp.data.Task;
-import com.example.android.architecture.blueprints.todoapp.di.AppComponent;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,7 +42,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * By marking the constructor with {@code @Inject} and the class with {@code @Singleton}, Dagger
  * injects the dependencies required to create an instance of the TasksRespository (if it fails, it
  * emits a compiler error). It uses {@link TasksRepositoryModule} to do so, and the constructed
- * instance is available in {@link AppComponent}.
+ * instance is available in {@link TasksRepositoryComponent}.
  * <p />
  * Dagger generated code doesn't require public access to the constructor or class, and
  * therefore, to ensure the developer doesn't instantiate the class manually and bypasses Dagger,

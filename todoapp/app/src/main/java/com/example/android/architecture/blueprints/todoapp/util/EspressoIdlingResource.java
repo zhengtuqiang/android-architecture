@@ -16,7 +16,6 @@
 
 package com.example.android.architecture.blueprints.todoapp.util;
 
-
 import android.support.test.espresso.IdlingResource;
 
 /**

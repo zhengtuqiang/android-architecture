@@ -51,7 +51,7 @@ public interface TaskDetailContract {
         boolean isActive();
     }
 
-    interface Presenter extends BasePresenter<View> {
+    interface Presenter extends BasePresenter {
 
         void editTask();
 
@@ -60,9 +60,5 @@ public interface TaskDetailContract {
         void completeTask();
 
         void activateTask();
-
-        void takeView(TaskDetailContract.View taskDetailFragment);
-
-        void dropView();
     }
 }

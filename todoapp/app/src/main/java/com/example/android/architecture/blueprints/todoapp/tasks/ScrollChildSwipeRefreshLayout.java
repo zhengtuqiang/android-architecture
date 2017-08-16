@@ -44,7 +44,7 @@ public class ScrollChildSwipeRefreshLayout extends SwipeRefreshLayout {
     @Override
     public boolean canChildScrollUp() {
         if (mScrollUpChild != null) {
-            return mScrollUpChild.canScrollVertically(-1);
+            return ViewCompat.canScrollVertically(mScrollUpChild, -1);
         }
         return super.canChildScrollUp();
     }

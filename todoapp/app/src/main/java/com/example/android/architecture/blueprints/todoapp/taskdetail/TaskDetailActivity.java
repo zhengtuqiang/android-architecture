@@ -17,23 +17,27 @@
 package com.example.android.architecture.blueprints.todoapp.taskdetail;
 
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import com.example.android.architecture.blueprints.todoapp.R;
+import com.example.android.architecture.blueprints.todoapp.ToDoApplication;
 import com.example.android.architecture.blueprints.todoapp.util.ActivityUtils;
+import com.example.android.architecture.blueprints.todoapp.util.EspressoIdlingResource;
 
 import javax.inject.Inject;
-
-import dagger.android.support.DaggerAppCompatActivity;
 
 /**
  * Displays task details screen.
  */
-public class TaskDetailActivity extends DaggerAppCompatActivity {
+public class TaskDetailActivity extends AppCompatActivity {
+
     public static final String EXTRA_TASK_ID = "TASK_ID";
-    @Inject
-    TaskDetailFragment injectedFragment;
+
+    @Inject TaskDetailPresenter mTaskDetailPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +52,25 @@ public class TaskDetailActivity extends DaggerAppCompatActivity {
         ab.setDisplayHomeAsUpEnabled(true);
         ab.setDisplayShowHomeEnabled(true);
 
+        // Get the requested task id
+        String taskId = getIntent().getStringExtra(EXTRA_TASK_ID);
+
         TaskDetailFragment taskDetailFragment = (TaskDetailFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.contentFrame);
 
         if (taskDetailFragment == null) {
-            taskDetailFragment = injectedFragment;
+            taskDetailFragment = TaskDetailFragment.newInstance(taskId);
+
             ActivityUtils.addFragmentToActivity(getSupportFragmentManager(),
                     taskDetailFragment, R.id.contentFrame);
         }
+
+        // Create the presenter
+        DaggerTaskDetailComponent.builder()
+                .taskDetailPresenterModule(new TaskDetailPresenterModule(taskDetailFragment, taskId))
+                .tasksRepositoryComponent(((ToDoApplication) getApplication())
+                .getTasksRepositoryComponent()).build()
+                .inject(this);
     }
 
     @Override

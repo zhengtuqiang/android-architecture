@@ -16,8 +16,6 @@
 
 package com.example.android.architecture.blueprints.todoapp.statistics;
 
-import android.support.annotation.Nullable;
-
 import com.example.android.architecture.blueprints.todoapp.data.Task;
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource;
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository;
@@ -30,11 +28,11 @@ import javax.inject.Inject;
 /**
  * Listens to user actions from the UI ({@link StatisticsFragment}), retrieves the data and updates
  * the UI as required.
- * <p/>
+ * <p />
  * By marking the constructor with {@code @Inject}, Dagger injects the dependencies required to
  * create an instance of the StatisticsPresenter (if it fails, it emits a compiler error). It uses
- * {@link StatisticsModule} to do so.
- * <p/>
+ * {@link StatisticsPresenterModule} to do so.
+ * <p />
  * Dagger generated code doesn't require public access to the constructor or class, and
  * therefore, to ensure the developer doesn't instantiate the class manually and bypasses Dagger,
  * it's good practice minimise the visibility of the class/constructor as much as possible.
@@ -43,23 +41,35 @@ final class StatisticsPresenter implements StatisticsContract.Presenter {
 
     private final TasksRepository mTasksRepository;
 
-    @Nullable
-    private StatisticsContract.View mStatisticsView;
+    private final StatisticsContract.View mStatisticsView;
 
     /**
      * Dagger strictly enforces that arguments not marked with {@code @Nullable} are not injected
      * with {@code @Nullable} values.
      */
     @Inject
-    StatisticsPresenter(TasksRepository tasksRepository) {
+    StatisticsPresenter(TasksRepository tasksRepository,
+                               StatisticsContract.View statisticsView) {
         mTasksRepository = tasksRepository;
+        mStatisticsView = statisticsView;
     }
 
+    /**
+     * Method injection is used here to safely reference {@code this} after the object is created.
+     * For more information, see Java Concurrency in Practice.
+     */
+    @Inject
+    void setupListeners() {
+        mStatisticsView.setPresenter(this);
+    }
+
+    @Override
+    public void start() {
+        loadStatistics();
+    }
 
     private void loadStatistics() {
-        if (mStatisticsView != null) {
-            mStatisticsView.setProgressIndicator(true);
-        }
+        mStatisticsView.setProgressIndicator(true);
 
         // The network request might be handled in a different thread so make sure Espresso knows
         // that the app is busy until the response is handled.
@@ -87,7 +97,7 @@ final class StatisticsPresenter implements StatisticsContract.Presenter {
                     }
                 }
                 // The view may not be able to handle UI updates anymore
-                if (mStatisticsView == null || !mStatisticsView.isActive()) {
+                if (!mStatisticsView.isActive()) {
                     return;
                 }
                 mStatisticsView.setProgressIndicator(false);
@@ -104,16 +114,5 @@ final class StatisticsPresenter implements StatisticsContract.Presenter {
                 mStatisticsView.showLoadingStatisticsError();
             }
         });
-    }
-
-    @Override
-    public void takeView(StatisticsContract.View view) {
-        mStatisticsView = view;
-        loadStatistics();
-    }
-
-    @Override
-    public void dropView() {
-        mStatisticsView = null;
     }
 }

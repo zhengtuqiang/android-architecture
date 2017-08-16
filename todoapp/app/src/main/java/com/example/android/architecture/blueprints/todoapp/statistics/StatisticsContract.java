@@ -35,5 +35,7 @@ public interface StatisticsContract {
         boolean isActive();
     }
 
-    interface Presenter extends BasePresenter<View> {}
+    interface Presenter extends BasePresenter {
+
+    }
 }

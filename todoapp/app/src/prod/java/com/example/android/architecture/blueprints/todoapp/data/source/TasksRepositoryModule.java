@@ -1,6 +1,5 @@
 package com.example.android.architecture.blueprints.todoapp.data.source;
 
-import android.app.Application;
 import android.content.Context;
 
 import com.example.android.architecture.blueprints.todoapp.data.source.local.TasksLocalDataSource;
@@ -20,7 +19,7 @@ public class TasksRepositoryModule {
     @Singleton
     @Provides
     @Local
-    TasksDataSource provideTasksLocalDataSource(Application context) {
+    TasksDataSource provideTasksLocalDataSource(Context context) {
         return new TasksLocalDataSource(context);
     }
 

@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,47 +37,41 @@ import android.widget.TextView;
 import com.example.android.architecture.blueprints.todoapp.R;
 import com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskActivity;
 import com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskFragment;
-import com.example.android.architecture.blueprints.todoapp.di.ActivityScoped;
 import com.google.common.base.Preconditions;
 
-import javax.inject.Inject;
-
-import dagger.android.support.DaggerFragment;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Main UI for the task detail screen.
  */
-@ActivityScoped
-public class TaskDetailFragment extends DaggerFragment implements TaskDetailContract.View {
+public class TaskDetailFragment extends Fragment implements TaskDetailContract.View {
 
     @NonNull
     private static final String ARGUMENT_TASK_ID = "TASK_ID";
 
     @NonNull
     private static final int REQUEST_EDIT_TASK = 1;
-    @Inject
-    String taskId;
-    @Inject
-    TaskDetailContract.Presenter mPresenter;
+
+    private TaskDetailContract.Presenter mPresenter;
+
     private TextView mDetailTitle;
+
     private TextView mDetailDescription;
+
     private CheckBox mDetailCompleteStatus;
 
-    @Inject
-    public TaskDetailFragment() {
+    public static TaskDetailFragment newInstance(@Nullable String taskId) {
+        Bundle arguments = new Bundle();
+        arguments.putString(ARGUMENT_TASK_ID, taskId);
+        TaskDetailFragment fragment = new TaskDetailFragment();
+        fragment.setArguments(arguments);
+        return fragment;
     }
-
 
     @Override
     public void onResume() {
         super.onResume();
-        mPresenter.takeView(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        mPresenter.dropView();
-        super.onDestroy();
+        mPresenter.start();
     }
 
     @Nullable
@@ -85,9 +80,9 @@ public class TaskDetailFragment extends DaggerFragment implements TaskDetailCont
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.taskdetail_frag, container, false);
         setHasOptionsMenu(true);
-        mDetailTitle = root.findViewById(R.id.task_detail_title);
-        mDetailDescription = root.findViewById(R.id.task_detail_description);
-        mDetailCompleteStatus = root.findViewById(R.id.task_detail_complete);
+        mDetailTitle = (TextView) root.findViewById(R.id.task_detail_title);
+        mDetailDescription = (TextView) root.findViewById(R.id.task_detail_description);
+        mDetailCompleteStatus = (CheckBox) root.findViewById(R.id.task_detail_complete);
 
         // Set up floating action button
         FloatingActionButton fab =
@@ -101,6 +96,11 @@ public class TaskDetailFragment extends DaggerFragment implements TaskDetailCont
         });
 
         return root;
+    }
+
+    @Override
+    public void setPresenter(@NonNull TaskDetailContract.Presenter presenter) {
+        mPresenter = checkNotNull(presenter);
     }
 
     @Override
