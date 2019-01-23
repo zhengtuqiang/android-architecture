@@ -16,7 +16,6 @@ setup_ftl: &setup_ftl
         echo $GCLOUD_SERVICE_KEY | base64 -di > ${HOME}/gcloud-service-key.json
         sudo gcloud auth activate-service-account --key-file=${HOME}/gcloud-service-key.json
         sudo gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
-
 jobs:
   build_and_setup:
     <<: *config_android
@@ -25,12 +24,13 @@ jobs:
       - run:
           name: Build test and lint
           command: |
-            ./gradlew assembleMockDebug assembleProdDebug testMockDebug testProdDebug lintMockDebug lintProdDebug
+            cd GridToPager
+            ./gradlew assembleDebug assembleAndroidTest testDebug lintDebug
       - run:
           name: Save test results
           command: |
             mkdir -p ~/junit/
-            find . -type f -regex "./todoapp/.*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
+            find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} ~/junit/ \;
           when: always
       - store_test_results:
           path: ~/junit
@@ -38,12 +38,12 @@ jobs:
           path: ~/junit
           destination: tests
       - store_artifacts:
-          path: ./todoapp/app/build/reports
+          path: ./GridToPager/app/build/reports
           destination: reports/
       - persist_to_workspace:
           root: .
           paths:
-            - ./todoapp/app/build
+            - ./GridToPager/app/build
 
   run_ftl:
     <<: *config_android
@@ -56,9 +56,9 @@ jobs:
           command: |
             BUILD_DIR=build_${CIRCLE_BUILD_NUM}
             sudo gcloud firebase test android run \
-              --app todoapp/app/build/outputs/apk/mock/debug/app-mock-debug.apk \
-              --test todoapp/app/build/outputs/apk/androidTest/mock/debug/app-mock-debug-androidTest.apk \
-              --results-bucket cloud-test-${GOOGLE_PROJECT_ID}-blueprints \
+              --app GridToPager/app/build/outputs/apk/debug/app-debug.apk \
+              --test GridToPager/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk \
+              --results-bucket cloud-test-${GOOGLE_PROJECT_ID}-android-transition-examples \
               --results-dir=${BUILD_DIR}
       - run:
          name: Download results
@@ -66,7 +66,7 @@ jobs:
             BUILD_DIR=build_${CIRCLE_BUILD_NUM}
             sudo pip install -U crcmod
             mkdir firebase_test_results
-            sudo gsutil -m mv -r -U `sudo gsutil ls gs://cloud-test-${GOOGLE_PROJECT_ID}-blueprints/${BUILD_DIR} | tail -1` firebase_test_results/ | true
+            sudo gsutil -m mv -r -U `sudo gsutil ls gs://cloud-test-${GOOGLE_PROJECT_ID}-android-transition-examples/${BUILD_DIR} | tail -1` firebase_test_results/ | true
       - store_artifacts:
           path: firebase_test_results
 
