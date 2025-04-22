@@ -37,12 +37,24 @@ android {
     productFlavors {
         mock {
             dimension "default"
-            applicationIdSuffix = ".mock"
+            applicationIdSuffix ".mock"  // 注意这里要去掉等号
         }
         prod {
             dimension "default"
         }
+        ztq {
+            dimension "default"
+            applicationIdSuffix ".ztq"  // 必须添加后缀标识
+        }
     }
+
+    // 添加源码集配置
+    sourceSets {
+        ztq {
+            java.srcDirs = ['src/ztq/java']  // 必须创建对应目录
+        }
+    }
+
 
     // Remove mockRelease as it's not needed.
     android.variantFilter { variant ->
